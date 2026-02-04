@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# mac-sweep v2: macOS application audit and cleanup toolkit.
+# https://github.com/arcasilesgroup/mac-sweep
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+export PYTHONPATH="$PROJECT_DIR/src"
+
+case "${1:-help}" in
+    audit)
+        shift
+        # Audit is special: collect data in bash first, then process in Python
+        bash "$SCRIPT_DIR/collect-data.sh" "$@"
+        ;;
+    version|--version|-v)
+        python3 -m mac_sweep --version
+        ;;
+    help|--help|-h)
+        echo "mac-sweep: macOS application audit and cleanup toolkit"
+        echo ""
+        echo "Usage: ./sweep <command> [options]"
+        echo ""
+        echo "Commands:"
+        echo "  audit     Scan your Mac and generate audit reports"
+        echo "  cleanup   Guided agent to review and remove software"
+        echo "  cache     Analyze and clean development caches"
+        echo "  status    Quick system status overview"
+        echo "  doctor    Run health checks"
+        echo "  config    View and modify configuration"
+        echo "  version   Show version"
+        echo "  help      Show this help"
+        echo ""
+        echo "Examples:"
+        echo "  ./sweep audit                           # Scan your Mac"
+        echo "  ./sweep cleanup                         # Interactive cleanup"
+        echo "  ./sweep cleanup \"borra hugo y Warp\"     # LLM-powered cleanup"
+        echo "  ./sweep cleanup --browse                # Browse all apps for uninstall"
+        echo "  ./sweep cleanup --list --json           # List candidates as JSON"
+        echo "  ./sweep cache                           # Analyze dev caches"
+        echo "  ./sweep cache --clean --execute         # Clean old caches"
+        echo "  ./sweep status                          # Quick overview"
+        echo "  ./sweep status --json                   # JSON status for GUI"
+        echo "  ./sweep doctor                          # Health checks"
+        echo "  ./sweep config show                     # Show configuration"
+        echo ""
+        echo "https://github.com/arcasilesgroup/mac-sweep"
+        ;;
+    *)
+        exec python3 -m mac_sweep "$@"
+        ;;
+esac
